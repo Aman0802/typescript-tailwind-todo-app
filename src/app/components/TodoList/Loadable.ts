@@ -6,7 +6,7 @@
 
 import { lazyLoad } from 'utils/loadable';
 
-export const TodoMapList = lazyLoad(
+export const TodoList = lazyLoad(
   () => import('./index'),
-  module => module.TodoMapList,
+  module => module.TodoList,
 );

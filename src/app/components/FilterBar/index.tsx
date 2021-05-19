@@ -1,16 +1,11 @@
-/**
- *
- * FilterBar
- *
- */
 import * as React from 'react';
 import classnames from 'classnames';
 
-import { TState } from '../../pages/HomePage/interfaces';
+import { HomePageState } from '../../pages/HomePage/interfaces';
 
 interface Props {
-  filter: TState['filter'];
-  setFilter: React.Dispatch<React.SetStateAction<TState['filter']>>;
+  filter: HomePageState['filter'];
+  setFilter: React.Dispatch<React.SetStateAction<HomePageState['filter']>>;
 }
 
 export function FilterBar({ filter, setFilter }: Props) {

@@ -1,45 +1,34 @@
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
 
-import { TState } from './interfaces';
-import { TodoMapList } from 'app/components/TodoMapList/Loadable';
+import { useTodoSlice } from './slice/index';
+import { selectTodo } from './slice/selectors';
+import { HomePageState } from './interfaces';
+import { TodoList } from 'app/components/TodoList/Loadable';
 import { FilterBar } from 'app/components/FilterBar';
 
 export function HomePage() {
-  const [todo, setTodo] = useState<TState['todo']>({
+  const { actions } = useTodoSlice();
+  const dispatch = useDispatch();
+
+  // TODO and FILTER State
+  const [todo, setTodo] = useState<HomePageState['todo']>({
     name: '',
     isCompleted: false,
   });
-  const [todos, setTodos] = useState<TState['todo'][]>([]);
-  const [filter, setFilter] = useState<TState['filter']>('All');
+  const [filter, setFilter] = useState<HomePageState['filter']>('All');
 
+  // ACCESSING THE GLOBAL STORE
+  const { todos } = useSelector(selectTodo);
+
+  // ON BUTTON CLICK, resets the textbox
   const handleAddTodo = () => {
-    setTodos([...todos, todo]);
+    dispatch(actions.addTodo(todo));
     setTodo({
       name: '',
       isCompleted: false,
     });
-  };
-
-  const updateTodos = todoToAdd => {
-    const shouldUpdate = todos.some(todoItem => {
-      return todoItem.name === todoToAdd.name;
-    });
-
-    if (shouldUpdate) {
-      return todos.map(todo => {
-        if (todo.name === todoToAdd.name) {
-          return {
-            name: todo.name,
-            isCompleted: !todoToAdd.isCompleted,
-          };
-        } else {
-          return todo;
-        }
-      });
-    } else {
-      return todos;
-    }
   };
 
   return (
@@ -70,28 +59,14 @@ export function HomePage() {
 
         <FilterBar filter={filter} setFilter={setFilter} />
 
-        {filter === 'All' && (
-          <TodoMapList
-            todosToMap={todos}
-            setTodos={setTodos}
-            updateTodos={updateTodos}
-          />
-        )}
+        {filter === 'All' && <TodoList todosToMap={todos} />}
 
         {filter === 'Completed' && (
-          <TodoMapList
-            todosToMap={todos?.filter(todo => todo.isCompleted)}
-            setTodos={setTodos}
-            updateTodos={updateTodos}
-          />
+          <TodoList todosToMap={todos?.filter(todo => todo.isCompleted)} />
         )}
 
         {filter === 'Active' && (
-          <TodoMapList
-            todosToMap={todos?.filter(todo => !todo.isCompleted)}
-            setTodos={setTodos}
-            updateTodos={updateTodos}
-          />
+          <TodoList todosToMap={todos?.filter(todo => !todo.isCompleted)} />
         )}
       </div>
     </>

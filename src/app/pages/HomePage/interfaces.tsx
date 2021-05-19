@@ -1,4 +1,4 @@
-export interface TState {
+export interface HomePageState {
   todo: {
     name: string;
     isCompleted: boolean;

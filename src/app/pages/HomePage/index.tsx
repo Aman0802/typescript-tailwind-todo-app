@@ -1,24 +1,98 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
+import { TState } from './interfaces';
+import { TodoMapList } from 'app/components/TodoMapList/Loadable';
+import { FilterBar } from 'app/components/FilterBar';
+
 export function HomePage() {
+  const [todo, setTodo] = useState<TState['todo']>({
+    name: '',
+    isCompleted: false,
+  });
+  const [todos, setTodos] = useState<TState['todo'][]>([]);
+  const [filter, setFilter] = useState<TState['filter']>('All');
+
+  const handleAddTodo = () => {
+    setTodos([...todos, todo]);
+    setTodo({
+      name: '',
+      isCompleted: false,
+    });
+  };
+
+  const updateTodos = todoToAdd => {
+    const shouldUpdate = todos.some(todoItem => {
+      return todoItem.name === todoToAdd.name;
+    });
+
+    if (shouldUpdate) {
+      return todos.map(todo => {
+        if (todo.name === todoToAdd.name) {
+          return {
+            name: todo.name,
+            isCompleted: !todoToAdd.isCompleted,
+          };
+        } else {
+          return todo;
+        }
+      });
+    } else {
+      return todos;
+    }
+  };
+
   return (
     <>
       <Helmet>
         <title>Home Page</title>
         <meta name="description" content="A Boilerplate application homepage" />
       </Helmet>
-      <div className="container">
-        <span className="font-bold text-red-400">HomePage container</span>
-        <div className="p-6 max-w-sm mx-auto bg-white rounded-xl shadow-md flex items-center space-x-4">
-          <div className="flex-shrink-0">
-            <img className="h-12 w-12" src="/logo192.png" alt="ChitChat Logo" />
-          </div>
-          <div>
-            <div className="text-xl font-medium text-black">ChitChat</div>
-            <p className="text-gray-500">You have a new message!</p>
-          </div>
+      <div className="px-24 mt-10">
+        <h1 className="text-2xl text-center font-bold mb-6">Todo App</h1>
+
+        <div className="flex justify-center ">
+          <input
+            className="border-b-2 border-gray-400 mr-4"
+            placeholder="Enter todo..."
+            type="text"
+            name="todoAdd"
+            value={todo.name}
+            onChange={e => setTodo({ ...todo, name: e.target.value })}
+          />
+          <button
+            className="bg-blue-500 px-2 py-1 text-white rounded-sm"
+            onClick={handleAddTodo}
+          >
+            Add Todo
+          </button>
         </div>
+
+        <FilterBar filter={filter} setFilter={setFilter} />
+
+        {filter === 'All' && (
+          <TodoMapList
+            todosToMap={todos}
+            setTodos={setTodos}
+            updateTodos={updateTodos}
+          />
+        )}
+
+        {filter === 'Completed' && (
+          <TodoMapList
+            todosToMap={todos?.filter(todo => todo.isCompleted)}
+            setTodos={setTodos}
+            updateTodos={updateTodos}
+          />
+        )}
+
+        {filter === 'Active' && (
+          <TodoMapList
+            todosToMap={todos?.filter(todo => !todo.isCompleted)}
+            setTodos={setTodos}
+            updateTodos={updateTodos}
+          />
+        )}
       </div>
     </>
   );
